@@ -1,0 +1,93 @@
+RewriteEngine On
+
+AddDefaultCharset UTF-8
+RewriteBase /
+DirectoryIndex index.php
+
+ErrorDocument 404 /404
+
+php_flag display_startup_errors on
+php_flag display_errors on
+php_flag html_errors on
+php_flag log_errors on
+
+RewriteRule ^404$                                                    404.html                  [L]
+
+
+RewriteRule ^lang$                                                   lib/components/languages/lang.php                   [QSA,L]
+RewriteRule ^lang/$                                                  lib/components/languages/lang.php                   [QSA,L]
+RewriteRule ^lang/save$                                              lib/components/languages/lang.php?page=save         [QSA,L]
+RewriteRule ^lang/save/$                                             lib/components/languages/lang.php?page=save         [QSA,L]
+RewriteRule ^lang/delete$                                            lib/components/languages/lang.php?page=delete         [QSA,L]
+RewriteRule ^lang/delete/$                                           lib/components/languages/lang.php?page=delete         [QSA,L]
+
+RewriteRule ^img/(.*)$                                               view/images/$1              [L]
+RewriteRule ^css/(.*)$                                               view/css/$1                 [L]
+RewriteRule ^font/(.*)$                                              view/css/fonts/$1           [L]
+RewriteRule ^file/(.*)$                                              view/files/$1               [L]
+RewriteRule ^js/(.*)$                                                view/js/$1                  [L]
+RewriteRule ^ajax/(.*)$                                              pages/ajax/$1               [QSA,L]
+
+RewriteRule ^logout$                                                 exit.php
+
+RewriteRule ^admin/([a-z0-9_-]{3,})/([a-z0-9_-]{1,})$                admin.php?page=$1&name=$2            [QSA,L]
+RewriteRule ^admin/([a-z0-9_-]{3,})/$                                admin.php?page=$1                    [QSA,L]
+RewriteRule ^admin/([a-z0-9_-]{3,})$                                 admin.php?page=$1                    [QSA,L]
+RewriteRule ^admin/$                                                 admin.php                            [QSA,L]
+RewriteRule ^admin$                                                  admin.php                            [QSA,L]
+
+RewriteRule ^([a-z]{2})/([a-z0-9_-]{3,})/([a-z0-9_-]{3,})/$          index.php?lang=$1&page=$2&name=$3    [QSA,L]
+RewriteRule ^([a-z]{2})/([a-z0-9_-]{3,})/([a-z0-9_-]{3,})$           index.php?lang=$1&page=$2&name=$3    [QSA,L]
+RewriteRule ^([a-z0-9_-]{3,})/([a-z0-9_-]{3,})/$                     index.php?page=$1&name=$2            [QSA,L]
+RewriteRule ^([a-z0-9_-]{3,})/([a-z0-9_-]{3,})$                      index.php?page=$1&name=$2            [QSA,L]
+
+RewriteRule ^([a-z]{2})/([a-z0-9_-]{3,})/$                           index.php?lang=$1&page=$2            [QSA,L]
+RewriteRule ^([a-z]{2})/([a-z0-9_-]{3,})$                            index.php?lang=$1&page=$2            [QSA,L]
+RewriteRule ^([a-z0-9_-]{3,})/$                                      index.php?page=$1                    [QSA,L]
+RewriteRule ^([a-z0-9_-]{3,})$                                       index.php?page=$1                    [QSA,L]
+
+<ifModule mod_headers.c>
+    #cache on day
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "max-age=86400"
+    </FilesMatch>
+    #cache on week
+    <FilesMatch "\.(js|css|txt)$">
+        Header set Cache-Control "max-age=604800"
+    </FilesMatch>
+    #cache on mounth
+    <FilesMatch "\.(flv|swf|ico|gif|jpg|jpeg|png)$">
+        Header set Cache-Control "max-age=2678400"
+    </FilesMatch>
+        #cache on year
+        <FilesMatch "\.(ttf)$">
+            Header set Cache-Control "max-age=31536000"
+        </FilesMatch>
+    #cache on 20 sec
+    <FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+        Header set Cache-Control "max-age=20"
+    </FilesMatch>
+</ifModule>
+
+<ifModule mod_expires.c>
+    ExpiresActive On
+    #default cache on 5 sec
+    ExpiresDefault "access plus 5 seconds"
+    #cache on mounth
+    ExpiresByType image/x-icon "access plus 2678400 seconds"
+    ExpiresByType image/jpeg "access plus 2678400 seconds"
+    ExpiresByType image/png "access plus 2678400 seconds"
+    ExpiresByType image/gif "access plus 2678400 seconds"
+    ExpiresByType application/x-shockwave-flash "access plus 2678400 seconds"
+    #cache on week
+    ExpiresByType text/css "access plus 604800 seconds"
+    ExpiresByType text/javascript "access plus 604800 seconds"
+    ExpiresByType application/javascript "access plus 604800 seconds"
+    ExpiresByType application/x-javascript "access plus 604800 seconds"
+    #cache on year
+    ExpiresByType application/x-font-ttf "access plus 31536000 seconds"
+    #cache on day
+    ExpiresByType text/html "access plus 86400 seconds"
+    #cache on day
+    ExpiresByType application/xhtml+xml "access plus 86400 seconds"
+</ifModule>

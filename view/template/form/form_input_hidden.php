@@ -1,0 +1,1 @@
+<input type="hidden" value="<?=$value;?>" name="<?=$name_id;?>" id="<?=$name_id;?>" />
