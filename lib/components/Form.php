@@ -71,7 +71,9 @@ class Form
             "error" => "",
             "class" => "",
             "style" => "",
-            "password" => false
+            "password" => false,
+            "required" => false
+     *
      * )
      */
     public function addInput($values)
@@ -86,7 +88,10 @@ class Form
             "error" => !empty($values['error']) ? $values['error'] : "",
             "class" => !empty($values['class']) ? $values['class'] : "",
             "style" => !empty($values['style']) ? $values['style'] : "",
-            "password" => !empty($values['password']) ? !!$values['password'] : false
+            "password" => !empty($values['password']) ? !!$values['password'] : false,
+            "pattern" => !empty($values['pattern']) ? $values['pattern'] : "",
+            "placeholder" => !empty($values['placeholder']) ? $values['placeholder'] : "",
+            "required" => !empty($values['required']) ? !!$values['required'] : false
         );
         $this->ITEMS->append($input);
     }
@@ -101,7 +106,8 @@ class Form
             "template" => !empty($values['template']) ? $values['template'] : "",
             "error" => !empty($values['error']) ? $values['error'] : "",
             "class" => !empty($values['class']) ? $values['class'] : "",
-            "style" => !empty($values['style']) ? $values['style'] : ""
+            "style" => !empty($values['style']) ? $values['style'] : "",
+            "required" => !empty($values['required']) ? !!$values['required'] : false
         );
         $this->ITEMS->append($input);
     }
@@ -142,7 +148,10 @@ class Form
             "template" => !empty($values['template']) ? $values['template'] : "",
             "error" => !empty($values['error']) ? $values['error'] : "",
             "class" => !empty($values['class']) ? $values['class'] : "",
-            "style" => !empty($values['style']) ? $values['style'] : ""
+            "style" => !empty($values['style']) ? $values['style'] : "",
+            "pattern" => !empty($values['pattern']) ? $values['pattern'] : "",
+            "placeholder" => !empty($values['placeholder']) ? $values['placeholder'] : "",
+            "required" => !empty($values['required']) ? !!$values['required'] : false
         );
         $this->ITEMS->append($input);
     }

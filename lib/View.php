@@ -1,10 +1,8 @@
 <?php
 namespace lib;
 
-
 class View
 {
-
     /**
      * Function return complete the html from the file /view/form/$nameTemplate.php
      *
@@ -28,17 +26,21 @@ class View
     }
 
     /**
-     * Function return complete the text from the file /view/menu/$nameTemplate.php
+     * Function return complete the html from the file /view/menu/$nameTemplate.php
      *
      * @param $nameMenu - name of the file with template menu[folder /view/menu/]
      * @return string
      */
     public static function getMenu($nameMenu) {
-        ob_start();
-        require(DIR_HOME . SP. 'view'. SP .'menu'. SP . $nameMenu .'.php');
-        $result = ob_get_contents();
-        ob_end_clean();
-
+        $result = "";
+        $file = getenv("DOCUMENT_ROOT").SP.'view'.SP.'menu'.SP.$nameMenu.'.php';
+        if(file_exists($file))
+        {
+            ob_start();
+            require($file);
+            $result = ob_get_contents();
+            ob_end_clean();
+        }
         return $result;
     }
 
@@ -65,7 +67,7 @@ class View
     }
 
     /**
-     * Function return complete the text from the file /view/template/$nameTemplate.php
+     * Function return complete the html from the file /view/template/$nameTemplate.php
      *
      * @param $nameTemplate - name of the file with template
      * @param array $data - array with variables what use in template[folder /view/template/]

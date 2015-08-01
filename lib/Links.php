@@ -43,7 +43,7 @@ class Links extends DB {
         {
 
             $result_ = $this->db_query("
-                SELECT p.name, p_i.url, p_i.lang, p.https
+                SELECT p.name, p_i.url, p_i.lang
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
                 WHERE p.name IN('". implode("','", $this->LINKS) ."')
@@ -57,7 +57,7 @@ class Links extends DB {
                 if(in_array($row['name'], $this->LINKS_ADMIN)){
                     $admin = "admin/";
                 }
-                $links[$row['name']] = ($row['https'] == 1 ? "https" : "http")."://" . $_SERVER['HTTP_HOST'] . ($this->isDefaultLang ? "" : $row['lang']) . "/". $admin . $row['url'];
+                $links[$row['name']] = "http://" . $_SERVER['HTTP_HOST'] . ($this->isDefaultLang ? "" : $row['lang']) . "/". $admin . $row['url'];
             }
             return $links;
         } else

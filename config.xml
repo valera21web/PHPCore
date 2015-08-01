@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
-    <default_page>aktualnosci</default_page>
+    <default_page>home</default_page>
+    <default_template>default</default_template>
     <default_page_admin>admin_main</default_page_admin>
     <laguages default="pl">
         <language>pl</language>
-        <language>en</language>
     </laguages>
     <database>
-        <host></host>
-        <db_name></db_name>
-        <user_name></user_name>
-        <password></password>
+        <host>localhost</host>
+        <db_name>u958194988_onepa</db_name>
+        <user_name>u958194988_valer</user_name>
+        <password>62758970</password>
     </database>
-    <news>
-        <bd_table>news</bd_table>
-        <template>news_template</template>
-    </news>
 </settings>
-

@@ -5,12 +5,13 @@ require_once (__DIR__ . SP ."DB.php");
 require_once (__DIR__ . SP ."Languages.php");
 require_once (__DIR__ . SP ."Links.php");
 require_once (__DIR__ . SP ."View.php");
-require_once (__DIR__ . SP . "Validation.php");
-require_once (__DIR__ . SP . "ListObj.php");
+require_once (__DIR__ . SP ."Validation.php");
+require_once (__DIR__ . SP ."ListObj.php");
+require_once (__DIR__ . SP ."function.php");
 
 
-abstract class System {
-
+abstract class System
+{
     private $SETTINGS;
     private $LANGUAGES;
     private $LINKS;
@@ -78,14 +79,17 @@ abstract class System {
     public function getInfoPage($urlPage)
     {
         $result_ = $this->DB->db_query("
-                SELECT p.`id`, p.name, p_i.title, p_i.description, p.template, p.visible
+                SELECT p.`id`, p.file_name, p_i.title, p_i.description, p.template, p.visible
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
                 WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND p_i.lang = '". $this->LANGUAGES->getLanguage() ."'
                     AND `admin` = ".($this->ADMIN ? 1 : 0)."
                 LIMIT 1
             ", "assoc");
-        if(!empty($result_['0']['name']) && file_exists("pages". SP . ($this->ADMIN ? "admin".SP : "") . $result_['0']['name'] .".php") && $result_['0']['visible'] != "0") {
+        if(!empty($result_['0']['file_name']) &&
+            file_exists("pages".SP.($this->ADMIN ? "admin".SP : "").$result_['0']['file_name'].".php")
+            && $result_['0']['visible'] != "0")
+        {
             return $result_['0'];
         } else {
             return false;
@@ -104,7 +108,7 @@ abstract class System {
             $this->PAGE_INFO = $pageInfo;
             $page_content = "";
             ob_start();
-            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo['name'] .'.php');
+            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo['file_name'] .'.php');
             $page_content = ob_get_contents();
             ob_end_clean();
 

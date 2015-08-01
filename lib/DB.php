@@ -37,9 +37,14 @@ class DB extends \mysqli
                 DB::$database = (String) $this->SETTINGS->database->db_name;
             }
         }
-        parent::__construct(DB::$host, DB::$user, DB::$password, DB::$database);
-        if ($this->connect_errno) die($this->connect_error);
-        $this->set_charset("utf8");
+        try{
+            parent::__construct(DB::$host, DB::$user, DB::$password, DB::$database);
+            if ($this->connect_errno)
+                die($this->connect_error);
+            $this->set_charset("utf8");
+        } catch(\Exception $d)  {
+            die($this->connect_error);
+        }
     }
 
     public function db_query($query, $type_return = 'non', $multi_query = false)
@@ -131,5 +136,10 @@ class DB extends \mysqli
             ++$i;
         } while ($this->more_results() && $this->next_result());
         return $return;
+    }
+
+    public function mysqli_insert_id()
+    {
+        return $this->insert_id;
     }
 }

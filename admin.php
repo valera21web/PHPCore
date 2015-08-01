@@ -1,8 +1,8 @@
 <?php
 session_start();
-define("SP", "/"); // separator for the folders
+define("SP", DIRECTORY_SEPARATOR);
 define("DIR_HOME", __DIR__);
-require_once (DIR_HOME . SP . "lib" . SP . "adminFunction.php");
+require_once (DIR_HOME . SP . "lib" . SP . "System.php");
 
 class Main extends \lib\System
 {

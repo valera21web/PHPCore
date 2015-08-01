@@ -32,7 +32,6 @@ class Languages {
         if(!file_exists($this->FOLDER))
             $this->createFiles();
 
-
         $this->initLanguageVariable($this->LANG);
     }
 
@@ -243,5 +242,4 @@ class Languages {
             }
         }
     }
-
 }
