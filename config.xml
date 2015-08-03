@@ -3,13 +3,14 @@
     <default_page>home</default_page>
     <default_template>default</default_template>
     <default_page_admin>admin_main</default_page_admin>
-    <laguages default="pl">
+    <laguages default="en">
+        <language>en</language>
         <language>pl</language>
     </laguages>
     <database>
         <host>localhost</host>
-        <db_name>u958194988_onepa</db_name>
-        <user_name>u958194988_valer</user_name>
-        <password>62758970</password>
+        <db_name>lessons</db_name>
+        <user_name>test_user</user_name>
+        <password>jAX6WODE14zO</password>
     </database>
 </settings>

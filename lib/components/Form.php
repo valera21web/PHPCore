@@ -21,24 +21,24 @@ class Form
             "enctype" => !empty($settings['enctype']) ? $settings['enctype'] : "multipart/form-data"
         );
     }
-/*
-    public function printForm()
-    {
-        $html = "<form name='". $this->SETTINGS['name'] ."' ".
-            " action='". $this->SETTINGS['action'] ."' ".
-            " method='". $this->SETTINGS['method'] ."' ".
-            " target='". $this->SETTINGS['target'] ."'".
-            " style='". $this->SETTINGS['style'] ."'".
-            " enctype='". $this->SETTINGS['enctype'] ."'
-            >";
-        foreach ($this->ITEMS AS $item) {
-            $html .= View::getTemplate("form/".$item->template, (array) $item);
-        }
-        $html .= "</form>";
+    /*
+        public function printForm()
+        {
+            $html = "<form name='". $this->SETTINGS['name'] ."' ".
+                " action='". $this->SETTINGS['action'] ."' ".
+                " method='". $this->SETTINGS['method'] ."' ".
+                " target='". $this->SETTINGS['target'] ."'".
+                " style='". $this->SETTINGS['style'] ."'".
+                " enctype='". $this->SETTINGS['enctype'] ."'
+                >";
+            foreach ($this->ITEMS AS $item) {
+                $html .= View::getTemplate("form/".$item->template, (array) $item);
+            }
+            $html .= "</form>";
 
-        return $html;
-    }*/
-     public function printForm()
+            return $html;
+        }*/
+    public function printForm()
     {
         $html = "<form name='". $this->SETTINGS['name'] ."' ".
             " action='". $this->SETTINGS['action'] ."' ".
@@ -62,17 +62,17 @@ class Form
     /**
      * @param $values array
      * (
-            "name_id" => "",
-            "type" => "text",
-            "label" => "",
-            "value" => "",
-            "template" => "",
-            "disabled" => false,
-            "error" => "",
-            "class" => "",
-            "style" => "",
-            "password" => false,
-            "required" => false
+    "name_id" => "",
+    "type" => "text",
+    "label" => "",
+    "value" => "",
+    "template" => "",
+    "disabled" => false,
+    "error" => "",
+    "class" => "",
+    "style" => "",
+    "password" => false,
+    "required" => false
      *
      * )
      */
@@ -116,13 +116,13 @@ class Form
     /**
      * @param $values array
      * (
-        "name_id" => "",
-        "label" => "",
-        "image" => "",
-        "template" => "",
-        "error" => "",
-        "class" => "",
-        "style" => ""
+    "name_id" => "",
+    "label" => "",
+    "image" => "",
+    "template" => "",
+    "error" => "",
+    "class" => "",
+    "style" => ""
      * )
      */
     public function addPhotoInput($values)

@@ -82,7 +82,8 @@ abstract class System
                 SELECT p.`id`, p.file_name, p_i.title, p_i.description, p.template, p.visible
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
-                WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND p_i.lang = '". $this->LANGUAGES->getLanguage() ."'
+                JOIN languages AS l ON(p_i.lang = l.id)
+                WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND l.abr = '". $this->LANGUAGES->getLanguage() ."'
                     AND `admin` = ".($this->ADMIN ? 1 : 0)."
                 LIMIT 1
             ", "assoc");

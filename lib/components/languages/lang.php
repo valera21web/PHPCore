@@ -2,12 +2,12 @@
 
 session_start();
 
-if(empty($_SESSION['admin']['id']))
-    header("Location: /admin/admin_authorization");
+//if(empty($_SESSION['admin']['id']))
+//    header("Location: /admin/admin_authorization");
 
 
-define("SP", "/"); // separator for the folders
-define("DIR_HOME", str_replace("/lib/components/languages", "",__DIR__));
+define("SP", DIRECTORY_SEPARATOR); // separator for the folders
+define("DIR_HOME", str_replace(SP."lib".SP."components".SP."languages", "",__DIR__));
 require_once(DIR_HOME . SP . "lib" . SP . "Languages.php");
 require_once(DIR_HOME . SP . "lib" . SP . "components" . SP ."Form.php");
 

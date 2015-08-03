@@ -41,13 +41,13 @@ class Links extends DB {
     {
         if(!empty($this->LINKS))
         {
-
             $result_ = $this->db_query("
-                SELECT p.name, p_i.url, p_i.lang
+                SELECT p.name, p_i.url, l.abr AS lang
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
+                JOIN languages AS l ON(p_i.lang = l.id)
                 WHERE p.name IN('". implode("','", $this->LINKS) ."')
-                    AND p_i.lang = '" . $this->Lang . "'
+                    AND l.abr = '" . $this->Lang . "'
                 ", "assoc");
             $links = array();
 
@@ -57,7 +57,7 @@ class Links extends DB {
                 if(in_array($row['name'], $this->LINKS_ADMIN)){
                     $admin = "admin/";
                 }
-                $links[$row['name']] = "http://" . $_SERVER['HTTP_HOST'] . ($this->isDefaultLang ? "" : $row['lang']) . "/". $admin . $row['url'];
+                $links[$row['name']] = "http://" . $_SERVER['HTTP_HOST'] . ($this->isDefaultLang ? "" : "/".$row['lang']) . "/". $admin . $row['url'];
             }
             return $links;
         } else

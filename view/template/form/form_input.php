@@ -1,4 +1,4 @@
-<div class="<?=$css_class.' ';?>form_row">
+<div class="<?=$class.' ';?>form_row">
     <div class="form_label_input  row">
         <? if(!empty($label)) {?>
             <div class="form_label"><label><?=$label;?>: </label></div>
