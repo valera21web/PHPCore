@@ -8,12 +8,27 @@ class Links extends DB {
     private $Lang = "";
     private $isDefaultLang = false;
     private $template = "{linksTemplateId=[ID_NAME]}";
+    
+    private $DATA = array();
+    private $DATA_TRANSLATE = array();
 
     public function __construct($Lang)
     {
         parent::__construct();
         $this->Lang = $Lang;
         $this->isDefaultLang = empty($_GET['lang']);
+
+        $result_ = $this->db_query("
+                SELECT p.name, p_i.url, p_i.lang
+                FROM pages AS p
+                JOIN pages_info AS p_i ON(p_i.page_id = p.id)
+                WHERE p_i.lang = '" . $this->Lang . "'
+                ", "assoc");
+
+        foreach ($result_ as $item)
+        {
+            $this->DATA[$item['name']] = $item;
+        }
     }
 
     public function addLink($pageName, $admin = 0)
@@ -41,27 +56,44 @@ class Links extends DB {
     {
         if(!empty($this->LINKS))
         {
+
             $result_ = $this->db_query("
-                SELECT p.name, p_i.url, l.abr AS lang
+                SELECT p.name, p_i.url, p_i.lang, p.https
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
-                JOIN languages AS l ON(p_i.lang = l.id)
                 WHERE p.name IN('". implode("','", $this->LINKS) ."')
-                    AND l.abr = '" . $this->Lang . "'
+                    AND p_i.lang = '" . $this->Lang . "'
                 ", "assoc");
+
             $links = array();
 
             foreach ($result_ as $row)
             {
                 $admin = "";
-                if(in_array($row['name'], $this->LINKS_ADMIN)){
+                if(in_array($row['name'], $this->LINKS_ADMIN))
                     $admin = "admin/";
-                }
-                $links[$row['name']] = "http://" . $_SERVER['HTTP_HOST'] . ($this->isDefaultLang ? "" : "/".$row['lang']) . "/". $admin . $row['url'];
+
+                $links[$row['name']] = ($this->isDefaultLang ? "" : "/".$row['lang']) . "/". $admin . $row['url'];
             }
             return $links;
         } else
             return array();
     }
 
+    public function getLink($name,  $typeUrl = 0, $admin = 0)
+    {
+        if(array_key_exists($name, $this->DATA))
+        {
+            switch($typeUrl)
+            {
+                case 0:
+                    return (!!$admin ? "/admin" : "").($this->isDefaultLang ? "" : "/".$this->Lang)."/".$this->DATA[$name]['url'];
+                    break;
+                case 1:
+                    return $this->DATA[$name]['url'];
+                    break;
+            }
+        }
+        return "/404";
+    }
 }

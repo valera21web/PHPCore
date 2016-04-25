@@ -21,23 +21,8 @@ class Form
             "enctype" => !empty($settings['enctype']) ? $settings['enctype'] : "multipart/form-data"
         );
     }
-    /*
-        public function printForm()
-        {
-            $html = "<form name='". $this->SETTINGS['name'] ."' ".
-                " action='". $this->SETTINGS['action'] ."' ".
-                " method='". $this->SETTINGS['method'] ."' ".
-                " target='". $this->SETTINGS['target'] ."'".
-                " style='". $this->SETTINGS['style'] ."'".
-                " enctype='". $this->SETTINGS['enctype'] ."'
-                >";
-            foreach ($this->ITEMS AS $item) {
-                $html .= View::getTemplate("form/".$item->template, (array) $item);
-            }
-            $html .= "</form>";
 
-            return $html;
-        }*/
+
     public function printForm()
     {
         $html = "<form name='". $this->SETTINGS['name'] ."' ".
@@ -62,17 +47,17 @@ class Form
     /**
      * @param $values array
      * (
-    "name_id" => "",
-    "type" => "text",
-    "label" => "",
-    "value" => "",
-    "template" => "",
-    "disabled" => false,
-    "error" => "",
-    "class" => "",
-    "style" => "",
-    "password" => false,
-    "required" => false
+            "name_id" => "",
+            "type" => "text",
+            "label" => "",
+            "value" => "",
+            "template" => "",
+            "disabled" => false,
+            "error" => "",
+            "class" => "",
+            "style" => "",
+            "password" => false,
+            "required" => false
      *
      * )
      */
@@ -116,13 +101,13 @@ class Form
     /**
      * @param $values array
      * (
-    "name_id" => "",
-    "label" => "",
-    "image" => "",
-    "template" => "",
-    "error" => "",
-    "class" => "",
-    "style" => ""
+        "name_id" => "",
+        "label" => "",
+        "image" => "",
+        "template" => "",
+        "error" => "",
+        "class" => "",
+        "style" => ""
      * )
      */
     public function addPhotoInput($values)
@@ -167,6 +152,39 @@ class Form
             "error" => !empty($values['error']) ? $values['error'] : "",
             "class" => !empty($values['class']) ? $values['class'] : "",
             "style" => !empty($values['style']) ? $values['style'] : ""
+        );
+        $this->ITEMS->append($input);
+    }
+
+    /**
+     * @param $values array
+     * (
+    "name_id" => "",
+    "type" => "text",
+    "label" => "",
+    "value" => "",
+    "template" => "",
+    "disabled" => false,
+    "error" => "",
+    "class" => "",
+    "style" => "",
+    "password" => false,
+    "required" => false
+     *
+     * )
+     */
+    public function addCkeckbox($values)
+    {
+        $input = (object) array(
+            "name_id" => !empty($values['name_id']) ? $values['name_id'] : "",
+            "label" => !empty($values['label']) ? $values['label'] : "",
+            "value" => !empty($values['value']) ? (!!$values['value'] ? 1 : 0) : 0,
+            "template" => !empty($values['template']) ? $values['template'] : "",
+            "disabled" => !empty($values['disabled']) ? !!$values['disabled'] : false,
+            "error" => !empty($values['error']) ? $values['error'] : "",
+            "class" => !empty($values['class']) ? $values['class'] : "",
+            "style" => !empty($values['style']) ? $values['style'] : "",
+            "required" => !empty($values['required']) ? !!$values['required'] : false
         );
         $this->ITEMS->append($input);
     }

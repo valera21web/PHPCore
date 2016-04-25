@@ -68,6 +68,7 @@ if(!empty($_GET['lang']))
                 "name_id" => "textarea_".$language,
                 "label" => "Language [".$language."]",
                 "value" => $LANG->getValue($_GET['lang'], $language),
+                "class" => "editor",
                 "template" => "form_textarea"
             )
         );
@@ -90,15 +91,17 @@ if(!empty($_GET['lang']))
             "template" => "form_button"
         )
     );
-
+    echo '<div>';
     echo $FORM->printForm();
+    echo '</div>';
 
     if($_GET['lang'] !== 'new')
     {
+        echo '<div>';
         $FORM_DEL = new \lib\Form("Lang_del",
             array(
                 "action" => "/lang/delete",
-                "style" => "float: right; position: relative; top: -65px;"
+                "style" => "float: right; position: relative; top: 10px;"
             )
         );
         $FORM_DEL->addInput(
@@ -117,5 +120,6 @@ if(!empty($_GET['lang']))
             )
         );
         echo $FORM_DEL->printForm();
+        echo '</div>';
     }
 }

@@ -5,13 +5,12 @@ require_once (__DIR__ . SP ."DB.php");
 require_once (__DIR__ . SP ."Languages.php");
 require_once (__DIR__ . SP ."Links.php");
 require_once (__DIR__ . SP ."View.php");
-require_once (__DIR__ . SP ."Validation.php");
-require_once (__DIR__ . SP ."ListObj.php");
-require_once (__DIR__ . SP ."function.php");
+require_once (__DIR__ . SP . "Validation.php");
+require_once (__DIR__ . SP . "ListObj.php");
 
 
-abstract class System
-{
+abstract class System {
+
     private $SETTINGS;
     private $LANGUAGES;
     private $LINKS;
@@ -24,8 +23,8 @@ abstract class System
         global $SYSTEM;
         $this->ADMIN = !!$admin;
         $this->SETTINGS = simplexml_load_file("config.xml");
-        $lang = !empty($_GET['lang']) ? $_GET['lang'] : $this->SETTINGS->laguages['default'];
-        $this->LANGUAGES = new Languages($lang, $this->SETTINGS->laguages);
+        $lang = !empty($_GET['lang']) ? $_GET['lang'] : $this->SETTINGS->languages['default'];
+        $this->LANGUAGES = new Languages($lang, $this->SETTINGS->languages);
         $this->DB = new DB(
             (String) $this->SETTINGS->database->host,
             (String) $this->SETTINGS->database->db_name,
@@ -71,6 +70,22 @@ abstract class System
     {
         return $this->LANGUAGES->getLanguage();
     }
+    public function getLanguages()
+    {
+        return $this->LANGUAGES->getLANGUAGES_SYSTEM();
+    }
+
+    public function getUrlsForPage()
+    {
+        $res = array();
+        $query = "SELECT p_i.lang, p_i.url FROM pages_info AS p_i WHERE p_i.page_id = " . $this->PAGE_INFO['id'];
+
+        $tmp = $this->DB->db_query($query, "assoc");
+        if(!empty($tmp) && !empty($tmp[0]) && !empty($tmp[0]['lang']))
+            foreach($tmp AS $item)
+                $res[$item['lang']] = "/".$item['lang']."/".$item['url'];
+        return $res;
+    }
 
     /**
      * @param String $urlPage - url of the page for the system language
@@ -79,18 +94,14 @@ abstract class System
     public function getInfoPage($urlPage)
     {
         $result_ = $this->DB->db_query("
-                SELECT p.`id`, p.file_name, p_i.title, p_i.description, p.template, p.visible
+                SELECT p.`id`, p.file_name AS name, p_i.title, p_i.description, p.template, p.visible
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
-                JOIN languages AS l ON(p_i.lang = l.id)
-                WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND l.abr = '". $this->LANGUAGES->getLanguage() ."'
+                WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND p_i.lang = '". $this->LANGUAGES->getLanguage() ."'
                     AND `admin` = ".($this->ADMIN ? 1 : 0)."
                 LIMIT 1
             ", "assoc");
-        if(!empty($result_['0']['file_name']) &&
-            file_exists("pages".SP.($this->ADMIN ? "admin".SP : "").$result_['0']['file_name'].".php")
-            && $result_['0']['visible'] != "0")
-        {
+        if(!empty($result_['0']['name']) && file_exists("pages". SP . ($this->ADMIN ? "admin".SP : "") . $result_['0']['name'] .".php") && $result_['0']['visible'] != "0") {
             return $result_['0'];
         } else {
             return false;
@@ -109,10 +120,11 @@ abstract class System
             $this->PAGE_INFO = $pageInfo;
             $page_content = "";
             ob_start();
-            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo['file_name'] .'.php');
+            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo['name'] .'.php');
             $page_content = ob_get_contents();
             ob_end_clean();
-
+            $PageTitle = $this->PAGE_INFO['title'];
+            $PageDescription = $this->PAGE_INFO['description'];
             ob_start();
             require('templates'. SP . $pageInfo['template'] .'.php');
             $result = ob_get_contents();
@@ -272,11 +284,12 @@ abstract class System
     /**
      * @param $pageName
      * @param int $admin
+     * @param int $type
      * @return mixed
      */
-    public function getLink($pageName, $admin = 0)
+    public function getLink($pageName, $type = 0, $admin = 0)
     {
-        return $this->LINKS->addLink($pageName, $admin);
+        return $this->LINKS->getLink($pageName, $type, $admin);
     }
 
     /**
@@ -303,32 +316,38 @@ abstract class System
         if($allSize > $sizeItemOnPage)
         {
             $sizeSubPages = (int)($allSize / $sizeItemOnPage) + ($allSize % $sizeItemOnPage != 0 ? 1 : 0);
+
             $arrayButtons = array();
             if($sizeSubPages <= $sizeButtonsActive)
             {
                 for($i = 0; $i < $sizeSubPages; ++$i)
                     $arrayButtons[] = $i;
-
-            } else if($activeSubPage < $sizeButtonsActive - 2) {
+            }
+            else if($activeSubPage < $sizeButtonsActive - 2)
                 $arrayButtons = array(0, 1, 2, 3, -1, $sizeSubPages-1);
-
-            } else if($activeSubPage >= ($sizeSubPages - $sizeButtonsActive - 2)) {
+            else if($activeSubPage >= ($sizeSubPages - ($sizeButtonsActive - 2)))
                 $arrayButtons = array(0, -1, $sizeSubPages-4, $sizeSubPages-3, $sizeSubPages-2, $sizeSubPages-1);
-
-            } else {
+            else
                 $arrayButtons = array(0, -1, $activeSubPage - 1, $activeSubPage, $activeSubPage + 1, -1, $sizeSubPages - 1);
 
-            }
-
-            $str = '<div class="count_button_'.count($arrayButtons).'">';
+            $str = '<div class="sub_pages_buttons row" data-count="'.count($arrayButtons).'">';
             foreach($arrayButtons AS $button)
             {
 
                 if($button == -1)
                 {
-                    $str .= '<div>...</div>';
+                    $str .= '<div class="sub_pages_button_space">...</div>';
                 } else
-                    $str .= View::getButton($templateButton, $button + 1, '?p='. $button, "nav_".$button, "page " . ($button + 1));
+                {
+                    $values = array(
+                        'value' => $button + 1,
+                        'link' => !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'].'&p='. $button : '?p='. $button,
+                        'id' => "nav_".$button,
+                        'data_page' => ($button + 1),
+                        'class' => ($activeSubPage == $button ? 'active' : '')
+                    );
+                    $str .= View::getButton($templateButton, $values);
+                }
             }
             echo $str;
         }

@@ -5,12 +5,11 @@
     <default_page_admin>admin_main</default_page_admin>
     <laguages default="en">
         <language>en</language>
-        <language>pl</language>
     </laguages>
     <database>
-        <host>localhost</host>
-        <db_name>lessons</db_name>
-        <user_name>test_user</user_name>
-        <password>jAX6WODE14zO</password>
+        <host></host>
+        <db_name></db_name>
+        <user_name></user_name>
+        <password></password>
     </database>
 </settings>

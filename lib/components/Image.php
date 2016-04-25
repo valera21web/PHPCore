@@ -44,12 +44,30 @@ class Image
 
             imagecopyresampled($tmp, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-            $fileName = md5($_file["name"].$typeImg.$newWidth.$newHeight) . "." . $typeImg;
+            $fileName = md5($_file["name"].date("Y-m-d H:i:s").$typeImg.$newWidth.$newHeight) . "." . $typeImg;
             $fileNameSrc = $src_save. $fileName;
 
             imagejpeg($tmp, $fileNameSrc, 100);
             imagedestroy($src);
             imagedestroy($tmp);
+        }
+        return $fileName;
+    }
+
+    /**
+     * @param $_file - $_FILES['file']
+     * @param $src_save
+     * @return null|string
+     */
+    public static function Save($_file, $src_save)
+    {
+        $fileName = null;
+        list(, $typeImg) = explode("/", $_file['type']);
+        $typeImg = strtolower($typeImg);
+        if (in_array($typeImg, array("jpg", "jpeg", "png", "gif")))
+        {
+            $fileName = md5($_file["name"].date("Y-m-d H:i:s").$typeImg) . "." . $typeImg;
+            move_uploaded_file($_file['tmp_name'], $src_save.$fileName);
         }
         return $fileName;
     }

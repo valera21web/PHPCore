@@ -3,14 +3,15 @@ namespace lib;
 
 class DB extends \mysqli
 {
+
     private $result = null;
-    private $mysqli = null;
     private static $host;
     private static $database;
     private static $user;
     private static $password;
     private $SETTINGS;
 
+    private $isConnected;
 
     /**
      * @param string $_host - host of the server DataBase
@@ -37,14 +38,18 @@ class DB extends \mysqli
                 DB::$database = (String) $this->SETTINGS->database->db_name;
             }
         }
-        try{
-            parent::__construct(DB::$host, DB::$user, DB::$password, DB::$database);
-            if ($this->connect_errno)
-                die($this->connect_error);
-            $this->set_charset("utf8");
-        } catch(\Exception $d)  {
-            die($this->connect_error);
-        }
+        $this->isConnected = @parent::__construct(DB::$host, DB::$user, DB::$password, DB::$database);
+        if ($this->connect_errno)
+            throw new \mysqli_sql_exception($this->connect_errno .": ".$this->connect_error);
+        $this->set_charset("utf8");
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsConnected()
+    {
+        return $this->isConnected;
     }
 
     public function db_query($query, $type_return = 'non', $multi_query = false)
@@ -136,10 +141,5 @@ class DB extends \mysqli
             ++$i;
         } while ($this->more_results() && $this->next_result());
         return $return;
-    }
-
-    public function mysqli_insert_id()
-    {
-        return $this->insert_id;
     }
 }

@@ -1,9 +1,10 @@
 <?php
+require_once (__DIR__ . SP . "System.php");
 
-function getLink($pageName, $admin = 0)
+function getLink($pageName, $type = 0, $admin = 0)
 {
    global $SYSTEM;
-   return $SYSTEM->getLink($pageName, $admin);
+   return $SYSTEM->getLink($pageName, $type, $admin);
 }
 
 function printLink($pageName)
@@ -22,6 +23,12 @@ function openPage($src)
 {
    global $SYSTEM;
    return $SYSTEM->openPage($src);
+}
+
+function db_query($query, $type_return = 'assoc', $multi_query = false)
+{
+   global $SYSTEM;
+   return $SYSTEM->db_query($query, $type_return, $multi_query);
 }
 
 function getMenu($nameMenu) {
@@ -48,16 +55,4 @@ function __($var, $lang = null)
 {
    global $SYSTEM;
    return $SYSTEM->getValueLanguageLib($var, $lang);
-}
-
-function db_query($query, $type_return = 'non', $multi_query = false)
-{
-    global $SYSTEM;
-    return $SYSTEM->db_query($query, $type_return, $multi_query);
-}
-
-function navSubPages($activeSubPage, $allSize, $templateButton = "nav_sub_pages", $sizeItemOnPage = 10, $sizeButtonsActive = 5)
-{
-    global $SYSTEM;
-    return $SYSTEM->navSubPages($activeSubPage, $allSize, $templateButton, $sizeItemOnPage, $sizeButtonsActive);
 }

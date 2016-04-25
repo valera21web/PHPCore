@@ -7,21 +7,20 @@ class Validation {
       return !!preg_match("/^[0-9a-zA-Z_]{3,}$/", $variable);
    }
 
+   static public function validTemplateName($variable) {
+      return !!preg_match("/^[0-9a-zA-Z_]{3,}$/", $variable);
+   }
+
    static public function validPassword($variable) {
       return !!preg_match("/^[0-9a-zA-Z_-]{8,}$/", $variable);
    }
 
    static public function validPageName($variable) {
-      return !!preg_match("/^[0-9a-z_]{3,}$/", $variable);
+      return !!preg_match("/^[0-9a-z_-]{3,}$/", $variable);
    }
 
-   static public function validEmail($variable)
-   {
-       return !!preg_match("/^[A-Za-z0-9\_\-]{3,}@[a-z0-9\-\_]{1,}\.[A-Za-z]{2,3}$/", $variable);
-   }
-
-   static public function validPhone($variable) {
-      return !!preg_match("/^((\+|00)(\ |\-|)[0-9]{2}|[0-9]{2}|)(\ |\-|)[0-9]{3}(\ |\-|)[0-9]{3}(\ |\-|)[0-9]{3}$/", $variable);
+   static public function validEmail($variable) {
+      return !!preg_match("/^[A-Za-z0-9_\-\.]{1,}@[a-z0-9_\.]{1,}\.[a-z]{2,3}$/", $variable);
    }
 
    static public function validInteger($variable) {

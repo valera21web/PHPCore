@@ -19,12 +19,8 @@ class ListObj implements \Iterator
         }
 
         if($data != null)
-        {
             foreach($data AS $row)
-            {
                 $this->data[] = new $name($row, "data");
-            }
-        }
     }
 
     public function get($id)

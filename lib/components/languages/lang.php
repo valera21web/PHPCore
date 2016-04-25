@@ -2,17 +2,17 @@
 
 session_start();
 
-//if(empty($_SESSION['admin']['id']))
+//if(empty($_SESSION['admin']))
 //    header("Location: /admin/admin_authorization");
 
 
 define("SP", DIRECTORY_SEPARATOR); // separator for the folders
-define("DIR_HOME", str_replace(SP."lib".SP."components".SP."languages", "",__DIR__));
+define("DIR_HOME", str_replace(SP . "lib" . SP . "components" . SP . "languages", "", __DIR__));
 require_once(DIR_HOME . SP . "lib" . SP . "Languages.php");
 require_once(DIR_HOME . SP . "lib" . SP . "components" . SP ."Form.php");
 
 $SETTINGS = simplexml_load_file(DIR_HOME . SP ."config.xml");
-$LANG = new \lib\Languages($SETTINGS->laguages['default'], $SETTINGS->laguages);
+$LANG = new \lib\Languages($SETTINGS->laguages['default'], $SETTINGS->languages);
 $LANG->initAllLanguages();
 
 $page_content = "";

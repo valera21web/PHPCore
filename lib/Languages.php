@@ -1,14 +1,18 @@
 <?php
 namespace lib;
 
+if(!defined("SP"))
+{
+    define("SP", DIRECTORY_SEPARATOR);
+}
 
-class Languages {
-
+class Languages
+{
     private $LANG = null;
     private $DEFAULT_LANG = null;
     private $LANGUAGES_SYSTEM = array();
 
-    private $VALUES;
+    public $VALUES;
 
     private $FILE_NAME = null;
     private $FOLDER =  ".land";
@@ -17,7 +21,6 @@ class Languages {
     {
         $this->FOLDER = __DIR__ . SP . $this->FOLDER. SP;
         $this->DEFAULT_LANG = (String) $list['default'];
-
         foreach($list->language AS $val)
         {
             $this->LANGUAGES_SYSTEM[] = (String) $val;
@@ -31,6 +34,7 @@ class Languages {
         $this->setFileName();
         if(!file_exists($this->FOLDER))
             $this->createFiles();
+
 
         $this->initLanguageVariable($this->LANG);
     }
@@ -50,16 +54,11 @@ class Languages {
                 $lang = $lang !== null ? $lang : $this->DEFAULT_LANG;
                 foreach($this->LANGUAGES_SYSTEM AS $_lang)
                 {
-
+                    if($_lang == "ur")
+                        continue;
+                    $text = str_ireplace("\"","'", $text);
                     $xml = simplexml_load_file($this->getFileName($_lang));
-                    $value =  $xml->addChild(
-                        "value",
-                        (
-                        $lang != $_lang
-                            ? ""
-                            : htmlspecialchars(mb_convert_encoding($text, 'utf-8', mb_detect_encoding($text)))
-                        )
-                    );
+                    $value = $xml->addChild("value",($lang != $_lang ? "" : bin2hex($text)));
                     $value->addAttribute("name", $var);
                     $xml->saveXML($this->getFileName($_lang));
 
@@ -77,7 +76,8 @@ class Languages {
             if($this->isHasVar($var, $lang))
             {
                 $lang = $lang !== null ? $lang : $this->DEFAULT_LANG;
-                $this->VALUES[$lang][$var]['value'] = $newValue;
+                $newValue = str_ireplace("\"","'", $newValue);
+                $this->VALUES[$lang][$var]['value'] = bin2hex($newValue);
                 $fileName = $this->getFileName($lang);
 
                 $xml = new \DOMDocument('1.0', 'UTF-8');
@@ -105,15 +105,17 @@ class Languages {
             return null;
 
         $lang = $lang === null ? $this->LANG : $lang;
+        if($lang == "ur")
+            return "`".$var."`";
         if(in_array($lang, $this->LANGUAGES_SYSTEM)) {
             if($this->isHasVar($var, $lang)) {
                 $value = $this->VALUES[$lang][$var]["value"];
-                return (String) htmlspecialchars_decode(mb_convert_encoding($value, 'utf-8', mb_detect_encoding($value)));
+                return hex2bin($value);
             } else {
                 $this->initLanguageVariable($lang);
                 if($this->isHasVar($var, $lang)) {
                     $value = $this->VALUES[$lang][$var]["value"];
-                    return (String)htmlspecialchars_decode(mb_convert_encoding($value, 'utf-8', mb_detect_encoding($value)));
+                    return hex2bin($value);
                 } else
                     return null;
             }
@@ -122,8 +124,9 @@ class Languages {
         }
     }
 
-    public function getLanguage() {
-        return $this->LANG;
+    public function getLanguage()
+    {
+        return $this->LANG == "ur" ? $this->DEFAULT_LANG : $this->LANG;
     }
 
     public function deleteValue($_var)
@@ -164,9 +167,7 @@ class Languages {
         foreach($this->VALUES AS $values)
         {
             foreach ($values AS $key => $value)
-            {
                 $arr[$key] = $key;
-            }
             break;
         }
         return $arr;
@@ -175,9 +176,7 @@ class Languages {
     public  function  getLanguages() {
         $arr = array();
         foreach($this->VALUES AS $key => $values)
-        {
             $arr[] = $key;
-        }
         return $arr;
     }
 
@@ -228,6 +227,7 @@ class Languages {
 
     private function initLanguageVariable($lang) {
         $lang = (String) $lang;
+        $lang = $lang == "ur" ? "en" : $lang;
         if(in_array($lang, $this->LANGUAGES_SYSTEM))
         {
             $this->VALUES[$lang] = array();
@@ -235,11 +235,13 @@ class Languages {
             foreach ($obj->value AS $val)
             {
                 $this->VALUES[$lang][(String)$val['name']] =
-                    array(
-                        "var" => (String) $val['name'],
-                        "value" => (String) $val
-                    );
+                    array( "var" => (String) $val['name'], "value" => (String) $val );
             }
         }
+    }
+
+    public function getLANGUAGES_SYSTEM()
+    {
+        return $this->LANGUAGES_SYSTEM;
     }
 }
