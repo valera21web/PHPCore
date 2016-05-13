@@ -1,9 +1,11 @@
 <?php
 namespace lib;
 
+require_once (__DIR__ . DIRECTORY_SEPARATOR ."/CacheManager.php");
+
 class DB extends \mysqli
 {
-
+    public static $KEY_CACHE_CONFIG = "KEY_CONFIG";
     private $result = null;
     private static $host;
     private static $database;
@@ -30,8 +32,15 @@ class DB extends \mysqli
         } else {
             if(DB::$host == null)
             {
-                $path = getenv("DOCUMENT_ROOT");
-                $this->SETTINGS = simplexml_load_file($path."/config.xml");
+                if(\lib\CacheManager::exist(self::$KEY_CACHE_CONFIG))
+                {
+                    $this->SETTINGS = json_decode(\lib\CacheManager::get(self::$KEY_CACHE_CONFIG));
+                }
+                else
+                {
+                    $this->SETTINGS = simplexml_load_file(getenv("DOCUMENT_ROOT")."/config.xml");
+                    \lib\CacheManager::set(self::$KEY_CACHE_CONFIG, json_encode($this->SETTINGS));
+                }
                 DB::$host = (String) $this->SETTINGS->database->host;
                 DB::$user = (String) $this->SETTINGS->database->user_name;
                 DB::$password = (String) $this->SETTINGS->database->password;

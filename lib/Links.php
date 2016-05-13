@@ -8,27 +8,20 @@ class Links extends DB {
     private $Lang = "";
     private $isDefaultLang = false;
     private $template = "{linksTemplateId=[ID_NAME]}";
-    
+
+    private static $KEY_CACHE_LINKS = "KEY_LINKS";
     private $DATA = array();
-    private $DATA_TRANSLATE = array();
+    private $LOAD_LINKS = false;
 
     public function __construct($Lang)
     {
         parent::__construct();
         $this->Lang = $Lang;
         $this->isDefaultLang = empty($_GET['lang']);
-
-        $result_ = $this->db_query("
-                SELECT p.name, p_i.url, p_i.lang
-                FROM pages AS p
-                JOIN pages_info AS p_i ON(p_i.page_id = p.id)
-                WHERE p_i.lang = '" . $this->Lang . "'
-                ", "assoc");
-
-        foreach ($result_ as $item)
-        {
-            $this->DATA[$item['name']] = $item;
-        }
+        if(\lib\CacheManager::exist(self::$KEY_CACHE_LINKS))
+            $this->DATA = \lib\CacheManager::get(self::$KEY_CACHE_LINKS);
+        else
+            $this->loadLinks();
     }
 
     public function addLink($pageName, $admin = 0)
@@ -94,6 +87,26 @@ class Links extends DB {
                     break;
             }
         }
+        else if(!$this->LOAD_LINKS)
+        {
+            $this->loadLinks();
+            return getLink($name,  $typeUrl, $admin);
+        }
         return "/404";
+    }
+
+    private function loadLinks()
+    {
+        $result_ = $this->db_query("
+                SELECT p.name, p_i.url, p_i.lang
+                FROM pages AS p
+                JOIN pages_info AS p_i ON(p_i.page_id = p.id)
+                WHERE p_i.lang = '" . $this->Lang . "'
+                ", "assoc");
+
+        foreach ($result_ as $item)
+            $this->DATA[$item['name']] = $item;
+        \lib\CacheManager::set(self::$KEY_CACHE_LINKS, $this->DATA);
+        $this->LOAD_LINKS = true;
     }
 }

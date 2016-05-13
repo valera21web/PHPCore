@@ -2,9 +2,8 @@
 namespace lib;
 
 if(!defined("SP"))
-{
     define("SP", DIRECTORY_SEPARATOR);
-}
+require_once (__DIR__ . SP ."CacheManager.php");
 
 class Languages
 {
@@ -16,12 +15,13 @@ class Languages
 
     private $FILE_NAME = null;
     private $FOLDER =  ".land";
+    private static $KEY_LANGUAGE = "KEY_LANGUAGE";
 
     public function __construct($lang, $list)
     {
         $this->FOLDER = __DIR__ . SP . $this->FOLDER. SP;
-        $this->DEFAULT_LANG = (String) $list['default'];
-        foreach($list->language AS $val)
+        $this->DEFAULT_LANG = (String) $list['@attributes']['default'];
+        foreach($list['language'] AS $val)
         {
             $this->LANGUAGES_SYSTEM[] = (String) $val;
         }
@@ -39,10 +39,10 @@ class Languages
         $this->initLanguageVariable($this->LANG);
     }
 
-    public function initAllLanguages() {
+    public function initAllLanguages($force = false)
+    {
         foreach($this->LANGUAGES_SYSTEM AS $lang)
-            if($lang != $this->DEFAULT_LANG)
-                $this->initLanguageVariable($lang);
+            $this->initLanguageVariable($lang, $force);
     }
 
     public function addValue($var, $text, $lang = null)
@@ -63,7 +63,7 @@ class Languages
                     $xml->saveXML($this->getFileName($_lang));
 
                 }
-                $this->initAllLanguages();
+                $this->initAllLanguages(true);
             } else
                 $this->setValue($var, $text, $lang);
         }
@@ -93,7 +93,7 @@ class Languages
 
                 $xml->appendChild($values);
                 $xml->save($fileName);
-                $this->initLanguageVariable($lang);
+                $this->initLanguageVariable($lang, true);
             } else
                 $this->addValue($var, $newValue, $lang);
         }
@@ -109,15 +109,37 @@ class Languages
             return "`".$var."`";
         if(in_array($lang, $this->LANGUAGES_SYSTEM)) {
             if($this->isHasVar($var, $lang)) {
-                $value = $this->VALUES[$lang][$var]["value"];
-                return hex2bin($value);
+                return hex2bin($this->VALUES[$lang][$var]["value"]);
             } else {
                 $this->initLanguageVariable($lang);
                 if($this->isHasVar($var, $lang)) {
-                    $value = $this->VALUES[$lang][$var]["value"];
-                    return hex2bin($value);
+                    return hex2bin($this->VALUES[$lang][$var]["value"]);
                 } else
                     return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public function getValuesStartOf($var, $lang = null)
+    {
+        if($var === null)
+            return null;
+        $lang = $lang === null ? $this->LANG : $lang;
+        if(in_array($lang, $this->LANGUAGES_SYSTEM))
+        {
+            if(!$this->isHasVar($var, $lang))
+                $this->initLanguageVariable($lang);
+            if(!$this->isHasVar($var, $lang))
+            {
+                $res = array();
+                foreach ($this->VALUES[$lang] AS $key => $variable)
+                {
+                    if(strpos($key, $var) === 0)
+                        $res[] = hex2bin($this->VALUES[$lang][$key]["value"]);
+                }
+                return $res;
             }
         } else {
             return null;
@@ -152,7 +174,7 @@ class Languages
                     $xml->appendChild($values);
                     $xml->save($this->getFileName($lang));
                 }
-                $this->initAllLanguages();
+                $this->initAllLanguages(true);
             }
         }
     }
@@ -162,7 +184,7 @@ class Languages
         return $this->FOLDER.$lang.".xml";
     }
 
-    public  function  getNames() {
+    public function getNames() {
         $arr = array();
         foreach($this->VALUES AS $values)
         {
@@ -173,7 +195,7 @@ class Languages
         return $arr;
     }
 
-    public  function  getLanguages() {
+    public function getLanguages() {
         $arr = array();
         foreach($this->VALUES AS $key => $values)
             $arr[] = $key;
@@ -225,18 +247,27 @@ class Languages
         }
     }
 
-    private function initLanguageVariable($lang) {
+    private function initLanguageVariable($lang, $force = false)
+    {
         $lang = (String) $lang;
         $lang = $lang == "ur" ? "en" : $lang;
         if(in_array($lang, $this->LANGUAGES_SYSTEM))
         {
             $this->VALUES[$lang] = array();
-            $obj = simplexml_load_file($this->getFileName($lang));
-            foreach ($obj->value AS $val)
+            $key = self::$KEY_LANGUAGE."_".$lang;
+            if(!\lib\CacheManager::exist($key) || $force)
             {
-                $this->VALUES[$lang][(String)$val['name']] =
-                    array( "var" => (String) $val['name'], "value" => (String) $val );
+                $xmlTmp = simplexml_load_file($this->getFileName($lang));
+                $tmp = array();
+                foreach ($xmlTmp->value AS $val)
+                {
+                    $tmp[(String) $val['name']] =
+                        array( "var" => (String) $val['name'], "value" => (String) $val );
+                }
+                \lib\CacheManager::set($key, json_encode($tmp));
             }
+            $this->VALUES[$lang] = json_decode(\lib\CacheManager::get($key), true);
+
         }
     }
 

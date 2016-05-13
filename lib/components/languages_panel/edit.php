@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 //if(empty($_SESSION['admin']))
 //    header("Location: /admin");
 
@@ -10,7 +9,8 @@ define("DIR_HOME", str_replace(SP . "lib" . SP . "components" . SP . "languages_
 require_once(DIR_HOME . SP . "lib" . SP . "Languages.php");
 
 $SETTINGS = simplexml_load_file(DIR_HOME . SP ."config.xml");
-$LANG = new \lib\Languages($SETTINGS->laguages['default'], $SETTINGS->languages);
+$SETTINGS = json_decode(json_encode($SETTINGS), true);
+$LANG = new \lib\Languages($SETTINGS['languages']['default'], $SETTINGS['languages']);
 $LANG->initAllLanguages();
 
 if(!empty($_GET['page']))

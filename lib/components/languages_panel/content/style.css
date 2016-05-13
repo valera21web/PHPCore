@@ -41,8 +41,7 @@ nav
 .nav-top
 {
     display: inline-block;
-    position: absolute;
-    right: 0;
+    padding-left: 500px;
     top: 0;
 }
 .nav-link

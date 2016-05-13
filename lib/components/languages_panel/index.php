@@ -11,7 +11,13 @@ require_once(DIR_HOME . SP . "lib" . SP . "Languages.php");
 require_once(DIR_HOME . SP . "lib" . SP . "components" . SP ."Form.php");
 
 $SETTINGS = simplexml_load_file(DIR_HOME . SP ."config.xml");
-$LANG = new \lib\Languages($SETTINGS->laguages['default'], $SETTINGS->languages);
+$SETTINGS = json_decode(json_encode($SETTINGS), true);
+
+//echo '<pre>';
+//print_r($SETTINGS);
+//return;
+
+$LANG = new \lib\Languages($SETTINGS['languages']['@attributes']['default'], $SETTINGS['languages']);
 $LANG->initAllLanguages();
 
 $page_content = "";

@@ -58,15 +58,8 @@ if($activeFilter != null)
                             <a href="/languages/page/link" class="nav-sub-link<?=activeSubPage("page", "link")?>">LINKS</a>
                             <a href="/languages/page/title" class="nav-sub-link<?=activeSubPage("page", "title")?>">TITLE</a>
                             <a href="/languages/page/description" class="nav-sub-link<?=activeSubPage("page", "description")?>">DESCRIPTION</a>
+                            <a href="/languages/page/keywords" class="nav-sub-link<?=activeSubPage("page", "keywords")?>">KEYWORDS</a>
                             <a href="/languages/page/content" class="nav-sub-link<?=activeSubPage("page", "content")?>">CONTENT</a>
-                        </div>
-                    </div>
-                    <div>
-                        <a class="nav-link<?=activePage("product")?>" data-path="product">PRODUCT</a>
-                        <div class="nav-sub-links path-product-sub row<?=activePage("product")?>">
-                            <a href="/languages/product/title" class="nav-sub-link<?=activeSubPage("product", "title")?>">TITLE</a>
-                            <a href="/languages/product/description" class="nav-sub-link<?=activeSubPage("product", "description")?>">DESCRIPTION</a>
-                            <a href="/languages/product/text" class="nav-sub-link<?=activeSubPage("product", "text")?>">TEXT</a>
                         </div>
                     </div>
                     <div>
@@ -75,12 +68,25 @@ if($activeFilter != null)
                             <a href="/languages/news/title" class="nav-sub-link<?=activeSubPage("news", "title")?>">TITLE</a>
                             <a href="/languages/news/description" class="nav-sub-link<?=activeSubPage("news", "description")?>">DESCRIPTION</a>
                             <a href="/languages/news/text" class="nav-sub-link<?=activeSubPage("news", "text")?>">TEXT</a>
+                            <a href="/languages/news/meta-keywords" class="nav-sub-link<?=activeSubPage("news", "meta-keywords")?>">META-KEYWORDS</a>
+                            <a href="/languages/news/meta-description" class="nav-sub-link<?=activeSubPage("news", "meta-description")?>">META-DESCRIPTION</a>
+                        </div>
+                    </div>
+                    <div>
+                        <a class="nav-link<?=activePage("product")?>" data-path="product">PRODUCT</a>
+                        <div class="nav-sub-links path-product-sub row<?=activePage("product")?>">
+                            <a href="/languages/product/title" class="nav-sub-link<?=activeSubPage("product", "title")?>">TITLE</a>
+                            <a href="/languages/product/description" class="nav-sub-link<?=activeSubPage("product", "description")?>">DESCRIPTION</a>
+                            <a href="/languages/product/text" class="nav-sub-link<?=activeSubPage("product", "text")?>">TEXT</a>
+                            <a href="/languages/product/meta-keywords" class="nav-sub-link<?=activeSubPage("product", "meta-keywords")?>">META-KEYWORDS</a>
+                            <a href="/languages/product/meta-description" class="nav-sub-link<?=activeSubPage("product", "meta-description")?>">META-DESCRIPTION</a>
                         </div>
                     </div>
                     <div><a href="/languages/text" class="nav-link<?=activePage("text")?>">TEXT</a></div>
                     <div><a href="/languages/link" class="nav-link<?=activePage("link")?>">LINKS</a></div>
                     <div><a href="/languages/reviews" class="nav-link<?=activePage("reviews")?>">REVIEWS</a></div>
                     <div><a href="/languages/title" class="nav-link<?=activePage("title")?>">TITLES</a></div>
+                    <div><a href="/languages/contact" class="nav-link<?=activePage("contact")?>">CONTACTS</a></div>
                 </div>
             </nav>
         </header>
@@ -88,12 +94,16 @@ if($activeFilter != null)
             <div class="left-nav">
 
 <?php
-                if(!empty($filterList))
+                if(!empty($activeFilter))
                 {
 ?>
                     <div><?=$activeFilter."..."?></div>
                     <div><a class="item-left-nav" href="?val=new">New</a></div>
 <?php
+                }
+                if(!empty($filterList))
+                {
+
                     foreach($filterList AS $lang)
                         echo '<div><a class="item-left-nav" href="?val='. $lang .'">'. str_replace($activeFilter,"", $lang) .'</a></div>';
                 }

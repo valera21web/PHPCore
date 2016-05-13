@@ -1,6 +1,7 @@
 <?php
 namespace lib;
 
+require_once (__DIR__ . SP ."CacheManager.php");
 require_once (__DIR__ . SP ."DB.php");
 require_once (__DIR__ . SP ."Languages.php");
 require_once (__DIR__ . SP ."Links.php");
@@ -17,19 +18,54 @@ abstract class System {
     private $DB;
     private $ADMIN = false;
     private $PAGE_INFO = null;
+    public static $KEY_CACHE_CONFIG = "KEY_CONFIG";
+    private static $KEY_PAGE_INFO = "KEY_PAGE_INFO";
 
     public function __construct($admin = false)
     {
         global $SYSTEM;
         $this->ADMIN = !!$admin;
-        $this->SETTINGS = simplexml_load_file("config.xml");
-        $lang = !empty($_GET['lang']) ? $_GET['lang'] : $this->SETTINGS->languages['default'];
-        $this->LANGUAGES = new Languages($lang, $this->SETTINGS->languages);
+        apc_clear_cache('user');
+
+        if(!\lib\CacheManager::exist(self::$KEY_CACHE_CONFIG))
+        {
+            $this->SETTINGS = simplexml_load_file("config.xml");
+            \lib\CacheManager::set(self::$KEY_CACHE_CONFIG, json_encode($this->SETTINGS));
+        }
+        $this->SETTINGS = json_decode(\lib\CacheManager::get(self::$KEY_CACHE_CONFIG), true);
+//        echo '<pre>';
+//        print_r($this->SETTINGS);
+//        return;
+        if($admin)
+            $lang = $this->SETTINGS['languages']['@attributes']['default'];
+        else
+        {
+            $LANGUAGES_ARRAY = array();
+            foreach($this->SETTINGS['languages']['language'] AS $val)
+                $LANGUAGES_ARRAY[] = (String) $val;
+
+            if(!empty($_GET['lang']))
+            {
+                $lang = $_GET['lang'];
+            }
+            else
+            {
+                $lang_domain = substr($_SERVER["SERVER_NAME"], -2);
+                $lang_browser = substr($_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2);
+                if(in_array($lang_domain, $LANGUAGES_ARRAY))
+                    $lang = $lang_domain;
+                else if(in_array($lang_browser, $LANGUAGES_ARRAY))
+                    $lang = $lang_browser ;
+                else
+                    $lang = $this->SETTINGS['languages']['@attributes']['default'];
+            }
+        }
+        $this->LANGUAGES = new Languages($lang, $this->SETTINGS['languages']);
         $this->DB = new DB(
-            (String) $this->SETTINGS->database->host,
-            (String) $this->SETTINGS->database->db_name,
-            (String) $this->SETTINGS->database->user_name,
-            (String) $this->SETTINGS->database->password
+            (String) $this->SETTINGS['database']['host'],
+            (String) $this->SETTINGS['database']['db_name'],
+            (String) $this->SETTINGS['database']['user_name'],
+            (String) $this->SETTINGS['database']['password']
         );
 
         $this->LINKS = new Links($this->LANGUAGES->getLanguage());
@@ -50,12 +86,12 @@ abstract class System {
      */
     public function getSetting($name, $subName = null)
     {
-        if(!empty($this->SETTINGS->$name))
-            if($subName != null && !empty($this->SETTINGS->$name->$subName))
+        if(!empty($this->SETTINGS[$name]))
+            if($subName != null && !empty($this->SETTINGS[$name][$subName]))
             {
-                return (String) $this->SETTINGS->$name->$subName;
+                return (String) $this->SETTINGS[$name][$subName];
             } else {
-                return (String) $this->SETTINGS->$name;
+                return (String) $this->SETTINGS[$name];
             }
         else
             return null;
@@ -78,12 +114,17 @@ abstract class System {
     public function getUrlsForPage()
     {
         $res = array();
-        $query = "SELECT p_i.lang, p_i.url FROM pages_info AS p_i WHERE p_i.page_id = " . $this->PAGE_INFO['id'];
+        $query = "SELECT p_i.lang, p_i.url FROM pages_info AS p_i WHERE p_i.page_id = " . $this->PAGE_INFO->id;
+        $subPage = "";
+        if(!empty($_GET['name']))
+        {
+            $subPage = "/".$_GET['name'];
+        }
 
         $tmp = $this->DB->db_query($query, "assoc");
         if(!empty($tmp) && !empty($tmp[0]) && !empty($tmp[0]['lang']))
             foreach($tmp AS $item)
-                $res[$item['lang']] = "/".$item['lang']."/".$item['url'];
+                $res[$item['lang']] = "/".$item['lang']."/".$item['url'].$subPage;
         return $res;
     }
 
@@ -93,19 +134,26 @@ abstract class System {
      */
     public function getInfoPage($urlPage)
     {
-        $result_ = $this->DB->db_query("
-                SELECT p.`id`, p.file_name AS name, p_i.title, p_i.description, p.template, p.visible
+        $key = self::$KEY_PAGE_INFO."_".$urlPage."_".$this->LANGUAGES->getLanguage()."_".$this->ADMIN;
+        if(!\lib\CacheManager::exist($key))
+        {
+            $result_ = $this->DB->db_query("
+                SELECT p.`id`, p.file_name AS name, p_i.title, p_i.description, p_i.keywords, p.template
                 FROM pages AS p
                 JOIN pages_info AS p_i ON(p_i.page_id = p.id)
                 WHERE p_i.url = '". $this->DB->escape_string($urlPage) ."' AND p_i.lang = '". $this->LANGUAGES->getLanguage() ."'
-                    AND `admin` = ".($this->ADMIN ? 1 : 0)."
+                    AND `admin` = ".($this->ADMIN ? 1 : 0)." AND p.visible = 1
                 LIMIT 1
             ", "assoc");
-        if(!empty($result_['0']['name']) && file_exists("pages". SP . ($this->ADMIN ? "admin".SP : "") . $result_['0']['name'] .".php") && $result_['0']['visible'] != "0") {
-            return $result_['0'];
-        } else {
-            return false;
+            if(file_exists("pages". SP . ($this->ADMIN ? "admin".SP : "") . $result_['0']['name'] .".php"))
+                \lib\CacheManager::set($key, json_encode($result_));
         }
+        if(\lib\CacheManager::exist($key))
+        {
+            $result_ = json_decode(\lib\CacheManager::get($key));
+            return $result_[0];
+        }
+        return false;
     }
 
     /**
@@ -117,22 +165,27 @@ abstract class System {
         $pageInfo = $this->getInfoPage($urlPage);
         if($pageInfo != false)
         {
+            global $PageTitle, $PageDescription, $PageKeywords;
             $this->PAGE_INFO = $pageInfo;
+            $PageTitle = $this->PAGE_INFO->title;
+            $PageDescription = $this->PAGE_INFO->description;
+            $PageKeywords = $this->PAGE_INFO->keywords;
+
             $page_content = "";
             ob_start();
-            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo['name'] .'.php');
+            require('pages'. SP . ($this->ADMIN ? "admin".SP : ""). $pageInfo->name .'.php');
             $page_content = ob_get_contents();
             ob_end_clean();
-            $PageTitle = $this->PAGE_INFO['title'];
-            $PageDescription = $this->PAGE_INFO['description'];
+
+
             ob_start();
-            require('templates'. SP . $pageInfo['template'] .'.php');
+            require('templates'. SP . $pageInfo->template .'.php');
             $result = ob_get_contents();
             ob_end_clean();
 
             return $this->LINKS->replaceLinks($result);
         } else {
-            header("Location: 404.html");
+            //header("Location: 404.html");
             return null;
         }
     }
@@ -271,6 +324,11 @@ abstract class System {
     public function getValueLanguageLib($var, $lang = null)
     {
         return $this->LANGUAGES->getValue($var, $lang);
+    }
+
+    public function getValuesStartOfLanguageLib($var, $lang = null)
+    {
+        return $this->LANGUAGES->getValuesStartOf($var, $lang);
     }
 
     /**
